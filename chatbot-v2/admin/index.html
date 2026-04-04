@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0c0e;--surface:#141417;--surface2:#1c1c21;--surface3:#22222a;
+  --border:#2a2a32;--text:#f0eff5;--muted:#6b6a75;
+  --accent:#7c6fff;--accent-dim:#3d3880;
+  --red:#ff6b6b;--green:#4ade80;--yellow:#fbbf24;--blue:#60a5fa;
+  --radius:10px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;background-image:radial-gradient(ellipse at 25% 25%,rgba(124,111,255,.15) 0,transparent 55%),radial-gradient(ellipse at 75% 75%,rgba(255,107,107,.08) 0,transparent 55%)}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:2.5rem;width:380px;box-shadow:0 24px 64px rgba(0,0,0,.6)}
+.login-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;display:flex;align-items:center;gap:10px;margin-bottom:2rem}
+.login-logo .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block}
+.login-card h2{font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:700;margin-bottom:.3rem}
+.login-card .sub{color:var(--muted);font-size:.83rem;margin-bottom:1.8rem}
+.field{margin-bottom:1.1rem}
+.field label{display:block;font-size:.72rem;font-family:'DM Mono',monospace;color:var(--muted);margin-bottom:.4rem;letter-spacing:.05em;text-transform:uppercase}
+.field input{width:100%;padding:.72rem 1rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .15s}
+.field input:focus{border-color:var(--accent)}
+.login-btn{width:100%;padding:.8rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;margin-top:.5rem;transition:opacity .15s}
+.login-btn:hover{opacity:.85}
+.login-error{color:var(--red);font-size:.8rem;margin-top:.8rem;text-align:center;display:none}
+.login-loading{color:var(--muted);font-size:.8rem;margin-top:.8rem;text-align:center;display:none;font-family:'DM Mono',monospace}
+
+/* APP */
+#app{display:none}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.hdr-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;display:flex;align-items:center;gap:8px}
+.hdr-logo .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block}
+.hdr-right{display:flex;align-items:center;gap:1rem}
+.hdr-badge{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:.25rem .7rem;border-radius:20px}
+.logout-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:.3rem .9rem;border-radius:6px;font-size:.78rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
+.sync-indicator{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);display:flex;align-items:center;gap:.4rem}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.sync-dot.syncing{background:var(--yellow);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+.main{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 58px)}
+nav{background:var(--surface);border-right:1px solid var(--border);padding:1.5rem 1rem}
+.nav-section{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;padding:.3rem .7rem;margin-bottom:.3rem}
+.nav-item{display:flex;align-items:center;gap:.65rem;padding:.6rem .7rem;border-radius:8px;cursor:pointer;font-size:.875rem;color:var(--muted);transition:all .15s;margin-bottom:.15rem;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--accent-dim);color:var(--accent);font-weight:500}
+.nav-icon{font-size:1rem;flex-shrink:0}
+
+.content{padding:2rem;overflow-y:auto}
+.page{display:none}.page.active{display:block}
+.page-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.5rem;margin-bottom:.3rem}
+.page-sub{color:var(--muted);font-size:.85rem;margin-bottom:2rem}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.25rem}
+.card-title{font-family:'Syne',sans-serif;font-weight:600;font-size:.95rem;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+
+.form-group{margin-bottom:1.1rem}
+.form-group label{display:block;font-size:.72rem;font-family:'DM Mono',monospace;color:var(--muted);margin-bottom:.4rem;letter-spacing:.05em;text-transform:uppercase}
+.form-group input,.form-group textarea{width:100%;padding:.65rem .9rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.875rem;outline:none;transition:border-color .15s}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--accent)}
+.form-group textarea{resize:vertical;min-height:90px;line-height:1.5}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+
+.btn{padding:.6rem 1.2rem;border-radius:8px;font-family:'Syne',sans-serif;font-weight:600;font-size:.82rem;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:.4rem}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{opacity:.85}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--border)}.btn-danger:hover{border-color:var(--red);background:rgba(255,107,107,.08)}
+.btn-sm{padding:.35rem .8rem;font-size:.75rem}
+.save-bar{display:flex;align-items:center;gap:1rem;margin-top:1rem}
+.saved-msg{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--green);opacity:0;transition:opacity .3s}
+.saved-msg.show{opacity:1}
+
+.sources-grid{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1rem}
+.source-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;display:flex;align-items:flex-start;gap:.75rem}
+.source-badge{font-family:'DM Mono',monospace;font-size:.65rem;padding:.2rem .55rem;border-radius:5px;flex-shrink:0}
+.badge-url{background:#1e3a5f;color:var(--blue)}
+.badge-pdf{background:#3d1f1f;color:var(--red)}
+.badge-txt{background:#1a3329;color:var(--green)}
+.source-info{flex:1;min-width:0}
+.source-name{font-size:.83rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.source-meta{font-family:'DM Mono',monospace;font-size:.63rem;color:var(--muted);margin-top:3px}
+.status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px}
+.status-ready{background:var(--green)}.status-processing{background:var(--yellow);animation:blink 1.2s infinite}
+
+.rule-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:.65rem;display:flex;gap:.75rem;align-items:flex-start}
+.rule-body{flex:1}
+.rule-trigger{font-size:.78rem;font-family:'DM Mono',monospace;color:var(--blue);margin-bottom:.3rem}
+.rule-response{font-size:.82rem;color:var(--muted);line-height:1.4}
+
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
+.stat-val{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:.2rem}
+.stat-label{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+
+.preview-link{display:flex;align-items:center;gap:.75rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem}
+.preview-link .link-text{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--blue);flex:1}
+.copy-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:.3rem .7rem;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s;white-space:nowrap}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+.tab-row{display:flex;gap:4px;margin-bottom:.75rem}
+.tab{padding:.35rem .9rem;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;font-size:.7rem;cursor:pointer;background:none;color:var(--muted);transition:all .15s}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.add-row{display:flex;gap:.6rem}
+.add-row input{flex:1;padding:.6rem .85rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.83rem;outline:none;font-family:'DM Sans',sans-serif}
+.add-row input:focus{border-color:var(--accent)}
+.file-lbl{flex:1;padding:.6rem .85rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:.8rem;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:border-color .15s}
+.file-lbl:hover{border-color:var(--accent)}
+#file-inp{display:none}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo"><span class="dot"></span> ChatBot Manager</div>
+    <h2>Accesso Admin</h2>
+    <p class="sub">Pannello di controllo riservato</p>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="pwd-input" placeholder="Inserisci la password admin" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Accedi →</button>
+    <div class="login-error" id="login-error">Password errata. Riprova.</div>
+    <div class="login-loading" id="login-loading">⏳ Connessione a Supabase…</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="hdr-logo"><span class="dot"></span> ChatBot Manager</div>
+    <div class="hdr-right">
+      <div class="sync-indicator"><span class="sync-dot" id="sync-dot"></span><span id="sync-label">Sincronizzato</span></div>
+      <span class="hdr-badge" id="hdr-botname">Admin</span>
+      <button class="logout-btn" onclick="doLogout()">Esci</button>
+    </div>
+  </header>
+
+  <div class="main">
+    <nav>
+      <div class="nav-section">Configurazione</div>
+      <button class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">📊</span> Dashboard</button>
+      <button class="nav-item" onclick="showPage('settings',this)"><span class="nav-icon">⚙️</span> Impostazioni Bot</button>
+      <button class="nav-item" onclick="showPage('sources',this)"><span class="nav-icon">📂</span> Fonti</button>
+      <button class="nav-item" onclick="showPage('rules',this)"><span class="nav-icon">📋</span> Regole Speciali</button>
+      <button class="nav-item" onclick="showPage('fallback',this)"><span class="nav-icon">📧</span> Fallback & Email</button>
+      <div class="nav-section" style="margin-top:1rem">Accesso</div>
+      <button class="nav-item" onclick="showPage('security',this)"><span class="nav-icon">🔐</span> Sicurezza</button>
+    </nav>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub">Panoramica del tuo chatbot — config salvata su Supabase ☁️</div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-val" id="stat-sources">0</div><div class="stat-label">Fonti attive</div></div>
+          <div class="stat-card"><div class="stat-val" id="stat-rules">0</div><div class="stat-label">Regole speciali</div></div>
+          <div class="stat-card"><div class="stat-val">✓</div><div class="stat-label">Stato sistema</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">🔗 Link Chatbot Pubblico</div>
+          <p style="color:var(--muted);font-size:.83rem;margin-bottom:1rem">Condividi con i tuoi utenti. Non espone nessuna configurazione.</p>
+          <div class="preview-link">
+            <span class="link-text" id="chat-link">../chat/index.html</span>
+            <button class="copy-btn" onclick="copyLink()">📋 Copia</button>
+            <button class="copy-btn" onclick="openChat()">↗ Apri</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">🤖 Bot attivo</div>
+          <div style="display:flex;align-items:center;gap:.75rem">
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--green)"></div>
+            <span id="dash-botname" style="font-weight:500">—</span>
+            <span style="color:var(--muted);font-size:.82rem">· In ascolto</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="page" id="page-settings">
+        <div class="page-title">Impostazioni Bot</div>
+        <div class="page-sub">Personalizza nome e comportamento</div>
+        <div class="card">
+          <div class="card-title">🤖 Identità</div>
+          <div class="form-group"><label>Nome del Chatbot</label><input type="text" id="bot-name" placeholder="es. Sofia, HelperBot…" /></div>
+          <div class="form-group"><label>Messaggio di benvenuto</label><textarea id="bot-welcome" placeholder="es. Ciao! Sono Sofia, come posso aiutarti?"></textarea></div>
+          <div class="form-group"><label>Tono e personalità</label><textarea id="bot-persona" placeholder="es. Sei un assistente formale specializzato in prodotti assicurativi…"></textarea></div>
+          <div class="save-bar">
+            <button class="btn btn-primary" onclick="saveSettings()">☁️ Salva su Supabase</button>
+            <span class="saved-msg" id="settings-saved">✓ Salvato!</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SOURCES -->
+      <div class="page" id="page-sources">
+        <div class="page-title">Fonti di Conoscenza</div>
+        <div class="page-sub">Documenti e URL che il bot usa per rispondere</div>
+        <div class="card">
+          <div class="card-title">➕ Aggiungi Fonte</div>
+          <div class="tab-row">
+            <button class="tab active" data-type="url" onclick="switchSourceTab(this)">URL</button>
+            <button class="tab" data-type="pdf" onclick="switchSourceTab(this)">PDF</button>
+            <button class="tab" data-type="txt" onclick="switchSourceTab(this)">TXT</button>
+          </div>
+          <div id="url-add-row" class="add-row">
+            <input type="text" id="url-inp" placeholder="https://esempio.com/pagina" />
+            <button class="btn btn-primary btn-sm" onclick="addURL()">+ Aggiungi</button>
+          </div>
+          <div id="file-add-row" class="add-row" style="display:none">
+            <label class="file-lbl" for="file-inp">📎 <span id="file-lbl-txt">Scegli file…</span></label>
+            <input type="file" id="file-inp" multiple onchange="fileSelected(this)" />
+            <button class="btn btn-primary btn-sm" onclick="addFiles()">+ Aggiungi</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">📂 Fonti caricate</div>
+          <div class="sources-grid" id="sources-grid"><p style="color:var(--muted);font-size:.83rem">Nessuna fonte.</p></div>
+        </div>
+      </div>
+
+      <!-- RULES -->
+      <div class="page" id="page-rules">
+        <div class="page-title">Regole Speciali</div>
+        <div class="page-sub">Risposte fisse per domande specifiche — hanno priorità assoluta</div>
+        <div class="card">
+          <div class="card-title">➕ Nuova Regola</div>
+          <div class="form-row">
+            <div class="form-group"><label>Trigger / Parola chiave</label><input type="text" id="rule-trigger" placeholder="es. prezzo, rimborso, orari…" /></div>
+            <div class="form-group"><label>Risposta da dare</label><input type="text" id="rule-response" placeholder="es. Per info prezzi chiama 02-XXXXXXX" /></div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="addRule()">+ Aggiungi regola</button>
+        </div>
+        <div class="card">
+          <div class="card-title">📋 Regole attive</div>
+          <div id="rules-list"><p style="color:var(--muted);font-size:.83rem">Nessuna regola.</p></div>
+        </div>
+      </div>
+
+      <!-- FALLBACK -->
+      <div class="page" id="page-fallback">
+        <div class="page-title">Fallback & Email</div>
+        <div class="page-sub">Cosa mostrare quando il bot non sa rispondere</div>
+        <div class="card">
+          <div class="card-title">📧 Contatto di supporto</div>
+          <div class="form-group"><label>Email di contatto</label><input type="email" id="fallback-email" placeholder="supporto@tuaazienda.it" /></div>
+          <div class="form-group"><label>Messaggio di fallback</label><textarea id="fallback-msg" placeholder="es. Non ho abbastanza informazioni. Contatta il nostro team."></textarea></div>
+          <div class="save-bar">
+            <button class="btn btn-primary" onclick="saveFallback()">☁️ Salva su Supabase</button>
+            <span class="saved-msg" id="fallback-saved">✓ Salvato!</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECURITY -->
+      <div class="page" id="page-security">
+        <div class="page-title">Sicurezza</div>
+        <div class="page-sub">Gestisci la password di accesso admin</div>
+        <div class="card">
+          <div class="card-title">🔐 Cambia Password</div>
+          <div class="form-group"><label>Password attuale</label><input type="password" id="pwd-current" /></div>
+          <div class="form-row">
+            <div class="form-group"><label>Nuova password</label><input type="password" id="pwd-new" /></div>
+            <div class="form-group"><label>Conferma</label><input type="password" id="pwd-confirm" /></div>
+          </div>
+          <div class="save-bar">
+            <button class="btn btn-primary" onclick="changePwd()">🔑 Cambia password</button>
+            <span class="saved-msg" id="pwd-saved">✓ Aggiornata!</span>
+          </div>
+          <div style="color:var(--red);font-size:.78rem;margin-top:.5rem;display:none" id="pwd-error"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">⚠️ Reset configurazione</div>
+          <p style="color:var(--muted);font-size:.83rem;margin-bottom:1rem">Elimina tutte le fonti, regole e impostazioni. Irreversibile.</p>
+          <button class="btn btn-danger" onclick="resetAll()">🗑 Reset completo</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── SUPABASE CONFIG ──
+const SUPABASE_URL = 'https://dmafhgewcnmteylbiyqo.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_6oQJn6zDZg4Fea_sRenQNQ_PlveL9tS';
+const SB_HEADERS = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
+
+let config = {};
+
+// ── SUPABASE API ──
+async function sbGet() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/chatbot_config?id=eq.default&select=*`, { headers: SB_HEADERS });
+  const rows = await res.json();
+  return rows[0] || null;
+}
+
+async function sbUpdate(data) {
+  setSyncing(true);
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/chatbot_config?id=eq.default`, {
+    method: 'PATCH',
+    headers: SB_HEADERS,
+    body: JSON.stringify({ ...data, updated_at: new Date().toISOString() })
+  });
+  setSyncing(false);
+  return res.ok;
+}
+
+function setSyncing(active) {
+  document.getElementById('sync-dot').className = 'sync-dot' + (active ? ' syncing' : '');
+  document.getElementById('sync-label').textContent = active ? 'Salvataggio…' : 'Sincronizzato';
+}
+
+// ── LOGIN ──
+async function doLogin() {
+  const pwd = document.getElementById('pwd-input').value;
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('login-loading').style.display = 'block';
+
+  try {
+    const row = await sbGet();
+    if (!row) throw new Error('Config non trovata');
+    config = row;
+    if (pwd === config.password) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      populateAll();
+    } else {
+      document.getElementById('login-loading').style.display = 'none';
+      document.getElementById('login-error').style.display = 'block';
+      document.getElementById('pwd-input').value = '';
+    }
+  } catch(e) {
+    document.getElementById('login-loading').style.display = 'none';
+    document.getElementById('login-error').textContent = 'Errore connessione Supabase. Riprova.';
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+function doLogout() {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('pwd-input').value = '';
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('login-loading').style.display = 'none';
+}
+
+document.getElementById('pwd-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+// ── NAVIGATION ──
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ── POPULATE ──
+function populateAll() {
+  document.getElementById('hdr-botname').textContent = config.bot_name || 'Bot';
+  document.getElementById('dash-botname').textContent = config.bot_name || '—';
+  document.getElementById('bot-name').value = config.bot_name || '';
+  document.getElementById('bot-welcome').value = config.bot_welcome || '';
+  document.getElementById('bot-persona').value = config.bot_persona || '';
+  document.getElementById('fallback-email').value = config.fallback_email || '';
+  document.getElementById('fallback-msg').value = config.fallback_msg || '';
+  renderSources();
+  renderRules();
+  updateStats();
+}
+
+function updateStats() {
+  const sources = config.sources || [];
+  const rules = config.rules || [];
+  document.getElementById('stat-sources').textContent = sources.filter(s=>s.status==='ready').length;
+  document.getElementById('stat-rules').textContent = rules.length;
+}
+
+// ── SETTINGS ──
+async function saveSettings() {
+  const data = {
+    bot_name: document.getElementById('bot-name').value.trim() || 'Assistente',
+    bot_welcome: document.getElementById('bot-welcome').value.trim(),
+    bot_persona: document.getElementById('bot-persona').value.trim()
+  };
+  const ok = await sbUpdate(data);
+  if (ok) {
+    Object.assign(config, data);
+    document.getElementById('hdr-botname').textContent = config.bot_name;
+    document.getElementById('dash-botname').textContent = config.bot_name;
+    flashSaved('settings-saved');
+  }
+}
+
+// ── SOURCES ──
+let activeSourceTab = 'url';
+function switchSourceTab(btn) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  activeSourceTab = btn.dataset.type;
+  document.getElementById('url-add-row').style.display = activeSourceTab==='url'?'flex':'none';
+  document.getElementById('file-add-row').style.display = activeSourceTab!=='url'?'flex':'none';
+  document.getElementById('file-inp').accept = activeSourceTab==='pdf'?'.pdf':'.txt';
+  document.getElementById('file-lbl-txt').textContent = `Scegli file ${activeSourceTab.toUpperCase()}…`;
+}
+
+function fileSelected(input) {
+  const files = Array.from(input.files);
+  document.getElementById('file-lbl-txt').textContent = files.length===1?files[0].name:`${files.length} file selezionati`;
+}
+
+async function addURL() {
+  const url = document.getElementById('url-inp').value.trim();
+  if (!url || !url.startsWith('http')) { alert('URL non valido'); return; }
+  const src = { id: Date.now(), type:'url', name:url.replace(/^https?:\/\//,'').slice(0,60), url, content:`[Contenuto da: ${url}]`, status:'ready' };
+  config.sources = [...(config.sources||[]), src];
+  await sbUpdate({ sources: config.sources });
+  renderSources(); updateStats();
+  document.getElementById('url-inp').value = '';
+}
+
+async function addFiles() {
+  const input = document.getElementById('file-inp');
+  const files = Array.from(input.files);
+  if (!files.length) { alert('Seleziona un file'); return; }
+  for (const file of files) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    const text = await file.text().catch(()=>`[${file.name}]`);
+    const src = { id: Date.now()+Math.random(), type:ext, name:file.name, content:text, status:'ready', meta:`${(file.size/1024).toFixed(1)} KB` };
+    config.sources = [...(config.sources||[]), src];
+  }
+  await sbUpdate({ sources: config.sources });
+  renderSources(); updateStats();
+  input.value='';
+  document.getElementById('file-lbl-txt').textContent='Scegli file…';
+}
+
+async function removeSource(id) {
+  if (!confirm('Rimuovere questa fonte?')) return;
+  config.sources = (config.sources||[]).filter(s=>s.id!==id);
+  await sbUpdate({ sources: config.sources });
+  renderSources(); updateStats();
+}
+
+function renderSources() {
+  const el = document.getElementById('sources-grid');
+  const sources = config.sources || [];
+  if (!sources.length) { el.innerHTML='<p style="color:var(--muted);font-size:.83rem">Nessuna fonte.</p>'; return; }
+  el.innerHTML = sources.map(s=>`
+    <div class="source-card">
+      <span class="source-badge badge-${s.type}">${s.type.toUpperCase()}</span>
+      <div class="source-info">
+        <div class="source-name" title="${s.name}">${s.name}</div>
+        <div class="source-meta"><span class="status-dot ${s.status==='ready'?'status-ready':'status-processing'}"></span>${s.status==='ready'?'Pronto':'Elaborazione…'}${s.meta?' · '+s.meta:''}</div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="removeSource(${s.id})">× Rimuovi</button>
+    </div>
+  `).join('');
+}
+
+// ── RULES ──
+async function addRule() {
+  const trigger = document.getElementById('rule-trigger').value.trim();
+  const response = document.getElementById('rule-response').value.trim();
+  if (!trigger||!response) { alert('Compila entrambi i campi'); return; }
+  config.rules = [...(config.rules||[]), { id:Date.now(), trigger, response }];
+  await sbUpdate({ rules: config.rules });
+  renderRules(); updateStats();
+  document.getElementById('rule-trigger').value='';
+  document.getElementById('rule-response').value='';
+}
+
+async function removeRule(id) {
+  config.rules = (config.rules||[]).filter(r=>r.id!==id);
+  await sbUpdate({ rules: config.rules });
+  renderRules(); updateStats();
+}
+
+function renderRules() {
+  const el = document.getElementById('rules-list');
+  const rules = config.rules || [];
+  if (!rules.length) { el.innerHTML='<p style="color:var(--muted);font-size:.83rem">Nessuna regola.</p>'; return; }
+  el.innerHTML = rules.map(r=>`
+    <div class="rule-card">
+      <div class="rule-body">
+        <div class="rule-trigger">🔍 Trigger: "${r.trigger}"</div>
+        <div class="rule-response">↩ ${r.response}</div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="removeRule(${r.id})">× Rimuovi</button>
+    </div>
+  `).join('');
+}
+
+// ── FALLBACK ──
+async function saveFallback() {
+  const data = { fallback_email: document.getElementById('fallback-email').value.trim(), fallback_msg: document.getElementById('fallback-msg').value.trim() };
+  const ok = await sbUpdate(data);
+  if (ok) { Object.assign(config, data); flashSaved('fallback-saved'); }
+}
+
+// ── SECURITY ──
+async function changePwd() {
+  const current = document.getElementById('pwd-current').value;
+  const newPwd = document.getElementById('pwd-new').value;
+  const confirm = document.getElementById('pwd-confirm').value;
+  const errEl = document.getElementById('pwd-error');
+  errEl.style.display='none';
+  if (current!==config.password) { errEl.textContent='Password attuale errata.'; errEl.style.display='block'; return; }
+  if (newPwd.length<6) { errEl.textContent='Minimo 6 caratteri.'; errEl.style.display='block'; return; }
+  if (newPwd!==confirm) { errEl.textContent='Le password non coincidono.'; errEl.style.display='block'; return; }
+  const ok = await sbUpdate({ password: newPwd });
+  if (ok) { config.password=newPwd; document.getElementById('pwd-current').value=''; document.getElementById('pwd-new').value=''; document.getElementById('pwd-confirm').value=''; flashSaved('pwd-saved'); }
+}
+
+async function resetAll() {
+  if (!confirm('Reset completo? Tutte le fonti e regole saranno eliminate.')) return;
+  const data = { bot_name:'Assistente', bot_welcome:'Ciao! Come posso aiutarti?', bot_persona:'', sources:[], rules:[], fallback_email:'', fallback_msg:'' };
+  await sbUpdate(data);
+  Object.assign(config, data);
+  populateAll();
+  alert('Reset completato.');
+}
+
+// ── UTILS ──
+function flashSaved(id) { const el=document.getElementById(id); el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2500); }
+function copyLink() { const link=window.location.href.replace('admin/index.html','chat/index.html'); navigator.clipboard.writeText(link).then(()=>alert('Link copiato!')); }
+function openChat() { window.open('../chat/index.html','_blank'); }
+</script>
+</body>
+</html>
