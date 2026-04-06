@@ -1,4 +1,5 @@
 [build]
+  base = "chatbot-v2"
   functions = "netlify/functions"
 
 [[redirects]]
