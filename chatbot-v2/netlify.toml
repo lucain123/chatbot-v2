@@ -1,5 +1,6 @@
 [build]
-    functions = "netlify/functions"
+  base = "chatbot-v2"
+  functions = "netlify/functions"
 
 [[redirects]]
   from = "/api/chat"
