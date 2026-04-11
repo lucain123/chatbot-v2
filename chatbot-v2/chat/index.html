@@ -33,6 +33,8 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 .msg.user .bubble{background:var(--ink);color:#f7f5f0;border-top-right-radius:4px}
 .bubble p{margin-bottom:.4rem}.bubble p:last-child{margin-bottom:0}
 .bubble strong{font-weight:600}
+.bubble a{color:var(--accent);text-decoration:underline;word-break:break-all}
+.msg.user .bubble a{color:#a0b4f0}
 
 .typing{display:flex;align-items:center;gap:4px;padding:.7rem .9rem}
 .td{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:bounce 1.2s infinite}
@@ -102,7 +104,6 @@ let config = {};
 let history = [];
 let loading = false;
 
-// Carica config da Supabase all'avvio
 async function loadConfig() {
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/chatbot_config?id=eq.default&select=bot_name,bot_welcome,fallback_email,fallback_msg`, {
@@ -186,13 +187,17 @@ function showTyping() {
 }
 function hideTyping(){ document.getElementById('typing')?.remove(); }
 
-function fmt(text){
-  return '<p>'+text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+function fmt(text) {
+  var escaped = text
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+  var linked = escaped.replace(/(https?:\/\/[^\s&]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+  return '<p>' + linked
     .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
     .replace(/\*(.*?)\*/g,'<em>$1</em>')
     .replace(/\n\n/g,'</p><p>')
-    .replace(/\n/g,'<br>')+'</p>';
+    .replace(/\n/g,'<br>') + '</p>';
 }
 
 const inp = document.getElementById('inp');
