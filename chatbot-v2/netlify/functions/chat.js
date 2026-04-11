@@ -15,38 +15,86 @@ exports.handler = async function(event) {
   try {
     var body = JSON.parse(event.body);
     var messages = body.messages;
-    var geminiKey = process.env.GEMINI_API_KEY;
+    var anthropicKey = process.env.ANTHROPIC_API_KEY;
+    var supabaseUrl = process.env.SUPABASE_URL;
+    var supabaseKey = process.env.SUPABASE_KEY;
 
-    console.log("Gemini key presente:", !!geminiKey);
+    console.log("Anthropic key presente:", !!anthropicKey);
+    console.log("Supabase URL presente:", !!supabaseUrl);
 
-    var contents = messages.map(function(m) {
-      return {
-        role: m.role === "assistant" ? "model" : "user",
-        parts: [{ text: m.content }]
-      };
-    });
-
-    var geminiRes = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + geminiKey,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: contents,
-          generationConfig: { maxOutputTokens: 1024 }
-        })
-      }
-    );
-
-    console.log("Gemini status:", geminiRes.status);
-    var data = await geminiRes.json();
-    console.log("Gemini data:", JSON.stringify(data).slice(0, 300));
-
-    if (!geminiRes.ok) {
-      return { statusCode: 500, headers: headers, body: JSON.stringify({ error: data.error.message }) };
+    if (!anthropicKey) {
+      return { statusCode: 500, headers: headers, body: JSON.stringify({ error: "ANTHROPIC_API_KEY mancante" }) };
     }
 
-    var reply = data.candidates[0].content.parts[0].text;
+    // Legge config da Supabase
+    var config = {};
+    try {
+      var sbRes = await fetch(supabaseUrl + "/rest/v1/chatbot_config?id=eq.default&select=*", {
+        headers: {
+          "apikey": supabaseKey,
+          "Authorization": "Bearer " + supabaseKey
+        }
+      });
+      console.log("Supabase status:", sbRes.status);
+      var rows = await sbRes.json();
+      config = rows[0] || {};
+      console.log("Config caricata:", config.bot_name);
+    } catch(sbErr) {
+      console.log("Supabase errore:", sbErr.message);
+    }
+
+    // System prompt
+    var systemPrompt = "Sei " + (config.bot_name || "un assistente") + ", un assistente di supporto professionale. Rispondi SEMPRE in italiano. Sii preciso, cordiale e conciso.";
+
+    if (config.bot_persona) {
+      systemPrompt += "\n\n" + config.bot_persona;
+    }
+
+    var sources = config.sources || [];
+    var readySources = sources.filter(function(s) { return s.status === "ready" && s.content; });
+    if (readySources.length > 0) {
+      var kb = readySources.map(function(s, i) { return "=== FONTE " + (i+1) + ": " + s.name + " ===\n" + s.content; }).join("\n\n");
+      systemPrompt += "\n\nBASATI ESCLUSIVAMENTE su queste fonti:\n\n" + kb + "\n\nSe la risposta non e' nelle fonti, NON inventare.";
+    }
+
+    var rules = config.rules || [];
+    if (rules.length > 0) {
+      var rulesText = rules.map(function(r) { return '- Se l\'utente chiede di "' + r.trigger + '", rispondi SEMPRE: "' + r.response + '"'; }).join("\n");
+      systemPrompt += "\n\nREGOLE SPECIALI (priorita' assoluta):\n" + rulesText;
+    }
+
+    if (config.fallback_email) {
+      systemPrompt += "\n\nSe non riesci a rispondere, di' sempre: \"Per assistenza diretta contattaci a " + config.fallback_email + "\".";
+    }
+
+    systemPrompt += "\n\nIMPORTANTE: Non menzionare mai le fonti, Claude, Anthropic o dettagli tecnici.";
+
+    console.log("Chiamata Anthropic...");
+
+    var aiRes = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": anthropicKey,
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: messages
+      })
+    });
+
+    console.log("Anthropic status:", aiRes.status);
+    var data = await aiRes.json();
+    console.log("Anthropic data:", JSON.stringify(data).slice(0, 200));
+
+    if (!aiRes.ok) {
+      return { statusCode: aiRes.status, headers: headers, body: JSON.stringify({ error: data.error ? data.error.message : "Errore API" }) };
+    }
+
+    var reply = data.content[0].text;
     return { statusCode: 200, headers: headers, body: JSON.stringify({ reply: reply }) };
 
   } catch(err) {
