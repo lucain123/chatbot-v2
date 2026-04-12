@@ -8,7 +8,7 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0c0c0e;--surface:#141417;--surface2:#1c1c21;--surface3:#22222a;
+  --bg:#0c0c0e;--surface:#141417;--surface2:#1c1c21;
   --border:#2a2a32;--text:#f0eff5;--muted:#6b6a75;
   --accent:#7c6fff;--accent-dim:#3d3880;
   --red:#ff6b6b;--green:#4ade80;--yellow:#fbbf24;--blue:#60a5fa;
@@ -17,15 +17,15 @@
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
 /* LOGIN */
-#login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;background-image:radial-gradient(ellipse at 25% 25%,rgba(124,111,255,.15) 0,transparent 55%),radial-gradient(ellipse at 75% 75%,rgba(255,107,107,.08) 0,transparent 55%)}
-.login-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:2.5rem;width:380px;box-shadow:0 24px 64px rgba(0,0,0,.6)}
+#login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;padding:1rem;background-image:radial-gradient(ellipse at 25% 25%,rgba(124,111,255,.15) 0,transparent 55%),radial-gradient(ellipse at 75% 75%,rgba(255,107,107,.08) 0,transparent 55%)}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:2rem;width:100%;max-width:380px;box-shadow:0 24px 64px rgba(0,0,0,.6)}
 .login-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;display:flex;align-items:center;gap:10px;margin-bottom:2rem}
 .login-logo .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block}
 .login-card h2{font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:700;margin-bottom:.3rem}
 .login-card .sub{color:var(--muted);font-size:.83rem;margin-bottom:1.8rem}
 .field{margin-bottom:1.1rem}
 .field label{display:block;font-size:.72rem;font-family:'DM Mono',monospace;color:var(--muted);margin-bottom:.4rem;letter-spacing:.05em;text-transform:uppercase}
-.field input{width:100%;padding:.72rem 1rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .15s}
+.field input{width:100%;padding:.72rem 1rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:1rem;outline:none;transition:border-color .15s}
 .field input:focus{border-color:var(--accent)}
 .login-btn{width:100%;padding:.8rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;margin-top:.5rem;transition:opacity .15s}
 .login-btn:hover{opacity:.85}
@@ -34,83 +34,121 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 /* APP */
 #app{display:none}
-header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+
+/* HEADER */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
 .hdr-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;display:flex;align-items:center;gap:8px}
 .hdr-logo .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block}
-.hdr-right{display:flex;align-items:center;gap:1rem}
-.hdr-badge{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:.25rem .7rem;border-radius:20px}
-.logout-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:.3rem .9rem;border-radius:6px;font-size:.78rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
-.logout-btn:hover{border-color:var(--red);color:var(--red)}
-.sync-indicator{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);display:flex;align-items:center;gap:.4rem}
-.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.hdr-right{display:flex;align-items:center;gap:.75rem}
+.hdr-badge{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:.2rem .6rem;border-radius:20px;display:none}
+@media(min-width:480px){.hdr-badge{display:block}}
+.sync-indicator{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);display:flex;align-items:center;gap:.35rem}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
 .sync-dot.syncing{background:var(--yellow);animation:blink 1s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.logout-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:.3rem .7rem;border-radius:6px;font-size:.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
 
-.main{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 58px)}
-nav{background:var(--surface);border-right:1px solid var(--border);padding:1.5rem 1rem}
+/* BOTTOM NAV (mobile) */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--surface);border-top:1px solid var(--border);
+  display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom);
+}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.6rem .25rem;cursor:pointer;border:none;background:none;color:var(--muted);font-size:.6rem;font-family:'DM Sans',sans-serif;gap:3px;transition:color .15s}
+.bnav-item.active{color:var(--accent)}
+.bnav-icon{font-size:1.2rem;line-height:1}
+
+/* DESKTOP LAYOUT */
+.main{display:flex;flex-direction:column;min-height:calc(100vh - 56px);padding-bottom:70px}
+@media(min-width:768px){
+  .main{flex-direction:row;padding-bottom:0}
+  .bottom-nav{display:none}
+  .side-nav{display:flex!important}
+}
+
+/* SIDEBAR (desktop only) */
+.side-nav{display:none;flex-direction:column;width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:1.5rem 1rem;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto}
 .nav-section{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;padding:.3rem .7rem;margin-bottom:.3rem}
 .nav-item{display:flex;align-items:center;gap:.65rem;padding:.6rem .7rem;border-radius:8px;cursor:pointer;font-size:.875rem;color:var(--muted);transition:all .15s;margin-bottom:.15rem;border:none;background:none;width:100%;text-align:left}
 .nav-item:hover{background:var(--surface2);color:var(--text)}
 .nav-item.active{background:var(--accent-dim);color:var(--accent);font-weight:500}
 .nav-icon{font-size:1rem;flex-shrink:0}
 
-.content{padding:2rem;overflow-y:auto}
+/* CONTENT */
+.content{flex:1;padding:1.25rem;overflow-y:auto;max-width:100%}
+@media(min-width:768px){.content{padding:2rem}}
+
 .page{display:none}.page.active{display:block}
-.page-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.5rem;margin-bottom:.3rem}
-.page-sub{color:var(--muted);font-size:.85rem;margin-bottom:2rem}
+.page-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.3rem;margin-bottom:.25rem}
+@media(min-width:768px){.page-title{font-size:1.5rem}}
+.page-sub{color:var(--muted);font-size:.82rem;margin-bottom:1.5rem}
 
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.25rem}
-.card-title{font-family:'Syne',sans-serif;font-weight:600;font-size:.95rem;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem;margin-bottom:1rem}
+@media(min-width:768px){.card{padding:1.5rem;margin-bottom:1.25rem}}
+.card-title{font-family:'Syne',sans-serif;font-weight:600;font-size:.9rem;margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem}
 
-.form-group{margin-bottom:1.1rem}
-.form-group label{display:block;font-size:.72rem;font-family:'DM Mono',monospace;color:var(--muted);margin-bottom:.4rem;letter-spacing:.05em;text-transform:uppercase}
-.form-group input,.form-group textarea{width:100%;padding:.65rem .9rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.875rem;outline:none;transition:border-color .15s}
+/* FORM */
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:.7rem;font-family:'DM Mono',monospace;color:var(--muted);margin-bottom:.4rem;letter-spacing:.05em;text-transform:uppercase}
+.form-group input,.form-group textarea{width:100%;padding:.65rem .9rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .15s}
 .form-group input:focus,.form-group textarea:focus{border-color:var(--accent)}
-.form-group textarea{resize:vertical;min-height:90px;line-height:1.5}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.form-group textarea{resize:vertical;min-height:80px;line-height:1.5}
+.form-row{display:grid;grid-template-columns:1fr;gap:.75rem}
+@media(min-width:600px){.form-row{grid-template-columns:1fr 1fr}}
 
-.btn{padding:.6rem 1.2rem;border-radius:8px;font-family:'Syne',sans-serif;font-weight:600;font-size:.82rem;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:.4rem}
+/* BUTTONS */
+.btn{padding:.6rem 1.1rem;border-radius:8px;font-family:'Syne',sans-serif;font-weight:600;font-size:.82rem;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:.4rem}
 .btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{opacity:.85}
-.btn-danger{background:transparent;color:var(--red);border:1px solid var(--border)}.btn-danger:hover{border-color:var(--red);background:rgba(255,107,107,.08)}
-.btn-sm{padding:.35rem .8rem;font-size:.75rem}
-.save-bar{display:flex;align-items:center;gap:1rem;margin-top:1rem}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--border)}.btn-danger:hover{border-color:var(--red)}
+.btn-sm{padding:.35rem .75rem;font-size:.75rem}
+.save-bar{display:flex;align-items:center;gap:1rem;margin-top:1rem;flex-wrap:wrap}
 .saved-msg{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--green);opacity:0;transition:opacity .3s}
 .saved-msg.show{opacity:1}
 
-.sources-grid{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1rem}
-.source-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;display:flex;align-items:flex-start;gap:.75rem}
-.source-badge{font-family:'DM Mono',monospace;font-size:.65rem;padding:.2rem .55rem;border-radius:5px;flex-shrink:0}
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.25rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
+.stat-val{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:.15rem}
+@media(min-width:480px){.stat-val{font-size:2rem}}
+.stat-label{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+
+/* PREVIEW LINK */
+.preview-link{display:flex;flex-direction:column;gap:.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem}
+@media(min-width:480px){.preview-link{flex-direction:row;align-items:center}}
+.preview-link .link-text{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--blue);flex:1;word-break:break-all}
+.link-btns{display:flex;gap:.5rem;flex-shrink:0}
+.copy-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:.3rem .7rem;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s;white-space:nowrap}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* SOURCES */
+.sources-grid{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem}
+.source-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.8rem;display:flex;align-items:flex-start;gap:.65rem}
+.source-badge{font-family:'DM Mono',monospace;font-size:.62rem;padding:.2rem .5rem;border-radius:5px;flex-shrink:0}
 .badge-url{background:#1e3a5f;color:var(--blue)}
 .badge-pdf{background:#3d1f1f;color:var(--red)}
 .badge-txt{background:#1a3329;color:var(--green)}
 .source-info{flex:1;min-width:0}
-.source-name{font-size:.83rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.source-meta{font-family:'DM Mono',monospace;font-size:.63rem;color:var(--muted);margin-top:3px}
+.source-name{font-size:.8rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.source-meta{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted);margin-top:3px}
 .status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px}
 .status-ready{background:var(--green)}.status-processing{background:var(--yellow);animation:blink 1.2s infinite}
 
-.rule-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:.65rem;display:flex;gap:.75rem;align-items:flex-start}
-.rule-body{flex:1}
-.rule-trigger{font-size:.78rem;font-family:'DM Mono',monospace;color:var(--blue);margin-bottom:.3rem}
-.rule-response{font-size:.82rem;color:var(--muted);line-height:1.4}
+/* RULES */
+.rule-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.9rem;margin-bottom:.6rem;display:flex;gap:.65rem;align-items:flex-start}
+.rule-body{flex:1;min-width:0}
+.rule-trigger{font-size:.75rem;font-family:'DM Mono',monospace;color:var(--blue);margin-bottom:.3rem}
+.rule-response{font-size:.8rem;color:var(--muted);line-height:1.4;word-break:break-word}
 
-.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
-.stat-val{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:.2rem}
-.stat-label{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-
-.preview-link{display:flex;align-items:center;gap:.75rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem}
-.preview-link .link-text{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--blue);flex:1}
-.copy-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:.3rem .7rem;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s;white-space:nowrap}
-.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
-
+/* TABS */
 .tab-row{display:flex;gap:4px;margin-bottom:.75rem}
-.tab{padding:.35rem .9rem;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;font-size:.7rem;cursor:pointer;background:none;color:var(--muted);transition:all .15s}
+.tab{padding:.35rem .8rem;border:1px solid var(--border);border-radius:6px;font-family:'DM Mono',monospace;font-size:.68rem;cursor:pointer;background:none;color:var(--muted);transition:all .15s}
 .tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.add-row{display:flex;gap:.6rem}
-.add-row input{flex:1;padding:.6rem .85rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.83rem;outline:none;font-family:'DM Sans',sans-serif}
+.add-row{display:flex;gap:.5rem;flex-wrap:wrap}
+.add-row input{flex:1;min-width:150px;padding:.6rem .85rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;outline:none;font-family:'DM Sans',sans-serif}
 .add-row input:focus{border-color:var(--accent)}
-.file-lbl{flex:1;padding:.6rem .85rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:.8rem;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:border-color .15s}
+.file-lbl{flex:1;min-width:150px;padding:.6rem .85rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:.78rem;cursor:pointer;display:flex;align-items:center;gap:.5rem}
 .file-lbl:hover{border-color:var(--accent)}
 #file-inp{display:none}
 
@@ -129,11 +167,11 @@ nav{background:var(--surface);border-right:1px solid var(--border);padding:1.5re
     <p class="sub">Pannello di controllo riservato</p>
     <div class="field">
       <label>Password</label>
-      <input type="password" id="pwd-input" placeholder="Inserisci la password admin" onkeydown="if(event.key==='Enter')doLogin()">
+      <input type="password" id="pwd-input" placeholder="Inserisci la password admin">
     </div>
     <button class="login-btn" onclick="doLogin()">Accedi →</button>
     <div class="login-error" id="login-error">Password errata. Riprova.</div>
-    <div class="login-loading" id="login-loading">⏳ Connessione a Supabase…</div>
+    <div class="login-loading" id="login-loading">⏳ Connessione…</div>
   </div>
 </div>
 
@@ -142,42 +180,46 @@ nav{background:var(--surface);border-right:1px solid var(--border);padding:1.5re
   <header>
     <div class="hdr-logo"><span class="dot"></span> ChatBot Manager</div>
     <div class="hdr-right">
-      <div class="sync-indicator"><span class="sync-dot" id="sync-dot"></span><span id="sync-label">Sincronizzato</span></div>
+      <div class="sync-indicator"><span class="sync-dot" id="sync-dot"></span><span id="sync-label" style="display:none">Sync</span></div>
       <span class="hdr-badge" id="hdr-botname">Admin</span>
       <button class="logout-btn" onclick="doLogout()">Esci</button>
     </div>
   </header>
 
   <div class="main">
-    <nav>
+
+    <!-- SIDEBAR DESKTOP -->
+    <nav class="side-nav">
       <div class="nav-section">Configurazione</div>
       <button class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">📊</span> Dashboard</button>
-      <button class="nav-item" onclick="showPage('settings',this)"><span class="nav-icon">⚙️</span> Impostazioni Bot</button>
+      <button class="nav-item" onclick="showPage('settings',this)"><span class="nav-icon">⚙️</span> Impostazioni</button>
       <button class="nav-item" onclick="showPage('sources',this)"><span class="nav-icon">📂</span> Fonti</button>
-      <button class="nav-item" onclick="showPage('rules',this)"><span class="nav-icon">📋</span> Regole Speciali</button>
-      <button class="nav-item" onclick="showPage('fallback',this)"><span class="nav-icon">📧</span> Fallback & Email</button>
+      <button class="nav-item" onclick="showPage('rules',this)"><span class="nav-icon">📋</span> Regole</button>
+      <button class="nav-item" onclick="showPage('fallback',this)"><span class="nav-icon">📧</span> Fallback</button>
       <div class="nav-section" style="margin-top:1rem">Accesso</div>
       <button class="nav-item" onclick="showPage('security',this)"><span class="nav-icon">🔐</span> Sicurezza</button>
     </nav>
 
+    <!-- CONTENT -->
     <div class="content">
 
       <!-- DASHBOARD -->
       <div class="page active" id="page-dashboard">
         <div class="page-title">Dashboard</div>
-        <div class="page-sub">Panoramica del tuo chatbot — config salvata su Supabase ☁️</div>
+        <div class="page-sub">Panoramica del tuo chatbot</div>
         <div class="stats-grid">
-          <div class="stat-card"><div class="stat-val" id="stat-sources">0</div><div class="stat-label">Fonti attive</div></div>
-          <div class="stat-card"><div class="stat-val" id="stat-rules">0</div><div class="stat-label">Regole speciali</div></div>
-          <div class="stat-card"><div class="stat-val">✓</div><div class="stat-label">Stato sistema</div></div>
+          <div class="stat-card"><div class="stat-val" id="stat-sources">0</div><div class="stat-label">Fonti</div></div>
+          <div class="stat-card"><div class="stat-val" id="stat-rules">0</div><div class="stat-label">Regole</div></div>
+          <div class="stat-card"><div class="stat-val">✓</div><div class="stat-label">Stato</div></div>
         </div>
         <div class="card">
           <div class="card-title">🔗 Link Chatbot Pubblico</div>
-          <p style="color:var(--muted);font-size:.83rem;margin-bottom:1rem">Condividi con i tuoi utenti. Non espone nessuna configurazione.</p>
           <div class="preview-link">
-            <span class="link-text" id="chat-link">../chat/index.html</span>
-            <button class="copy-btn" onclick="copyLink()">📋 Copia</button>
-            <button class="copy-btn" onclick="openChat()">↗ Apri</button>
+            <span class="link-text" id="chat-link">-</span>
+            <div class="link-btns">
+              <button class="copy-btn" onclick="copyLink()">📋 Copia</button>
+              <button class="copy-btn" onclick="openChat()">↗ Apri</button>
+            </div>
           </div>
         </div>
         <div class="card">
@@ -185,7 +227,6 @@ nav{background:var(--surface);border-right:1px solid var(--border);padding:1.5re
           <div style="display:flex;align-items:center;gap:.75rem">
             <div style="width:10px;height:10px;border-radius:50%;background:var(--green)"></div>
             <span id="dash-botname" style="font-weight:500">—</span>
-            <span style="color:var(--muted);font-size:.82rem">· In ascolto</span>
           </div>
         </div>
       </div>
@@ -198,9 +239,9 @@ nav{background:var(--surface);border-right:1px solid var(--border);padding:1.5re
           <div class="card-title">🤖 Identità</div>
           <div class="form-group"><label>Nome del Chatbot</label><input type="text" id="bot-name" placeholder="es. Sofia, HelperBot…" /></div>
           <div class="form-group"><label>Messaggio di benvenuto</label><textarea id="bot-welcome" placeholder="es. Ciao! Sono Sofia, come posso aiutarti?"></textarea></div>
-          <div class="form-group"><label>Tono e personalità</label><textarea id="bot-persona" placeholder="es. Sei un assistente formale specializzato in prodotti assicurativi…"></textarea></div>
+          <div class="form-group"><label>Tono e personalità / Istruzioni aggiuntive</label><textarea id="bot-persona" placeholder="es. Rispondi nella lingua dell'utente. Sii breve e professionale."></textarea></div>
           <div class="save-bar">
-            <button class="btn btn-primary" onclick="saveSettings()">☁️ Salva su Supabase</button>
+            <button class="btn btn-primary" onclick="saveSettings()">☁️ Salva</button>
             <span class="saved-msg" id="settings-saved">✓ Salvato!</span>
           </div>
         </div>
@@ -208,7 +249,7 @@ nav{background:var(--surface);border-right:1px solid var(--border);padding:1.5re
 
       <!-- SOURCES -->
       <div class="page" id="page-sources">
-        <div class="page-title">Fonti di Conoscenza</div>
+        <div class="page-title">Fonti</div>
         <div class="page-sub">Documenti e URL che il bot usa per rispondere</div>
         <div class="card">
           <div class="card-title">➕ Aggiungi Fonte</div>
@@ -236,14 +277,14 @@ nav{background:var(--surface);border-right:1px solid var(--border);padding:1.5re
       <!-- RULES -->
       <div class="page" id="page-rules">
         <div class="page-title">Regole Speciali</div>
-        <div class="page-sub">Risposte fisse per domande specifiche — hanno priorità assoluta</div>
+        <div class="page-sub">Risposte fisse per domande specifiche</div>
         <div class="card">
           <div class="card-title">➕ Nuova Regola</div>
           <div class="form-row">
-            <div class="form-group"><label>Trigger / Parola chiave</label><input type="text" id="rule-trigger" placeholder="es. prezzo, rimborso, orari…" /></div>
-            <div class="form-group"><label>Risposta da dare</label><input type="text" id="rule-response" placeholder="es. Per info prezzi chiama 02-XXXXXXX" /></div>
+            <div class="form-group"><label>Trigger / Parola chiave</label><input type="text" id="rule-trigger" placeholder="es. prezzo, orari…" /></div>
+            <div class="form-group"><label>Risposta da dare</label><input type="text" id="rule-response" placeholder="es. Chiama il 02-XXXXXXX" /></div>
           </div>
-          <button class="btn btn-primary btn-sm" onclick="addRule()">+ Aggiungi regola</button>
+          <button class="btn btn-primary btn-sm" onclick="addRule()">+ Aggiungi</button>
         </div>
         <div class="card">
           <div class="card-title">📋 Regole attive</div>
@@ -260,7 +301,7 @@ nav{background:var(--surface);border-right:1px solid var(--border);padding:1.5re
           <div class="form-group"><label>Email di contatto</label><input type="email" id="fallback-email" placeholder="supporto@tuaazienda.it" /></div>
           <div class="form-group"><label>Messaggio di fallback</label><textarea id="fallback-msg" placeholder="es. Non ho abbastanza informazioni. Contatta il nostro team."></textarea></div>
           <div class="save-bar">
-            <button class="btn btn-primary" onclick="saveFallback()">☁️ Salva su Supabase</button>
+            <button class="btn btn-primary" onclick="saveFallback()">☁️ Salva</button>
             <span class="saved-msg" id="fallback-saved">✓ Salvato!</span>
           </div>
         </div>
@@ -278,31 +319,39 @@ nav{background:var(--surface);border-right:1px solid var(--border);padding:1.5re
             <div class="form-group"><label>Conferma</label><input type="password" id="pwd-confirm" /></div>
           </div>
           <div class="save-bar">
-            <button class="btn btn-primary" onclick="changePwd()">🔑 Cambia password</button>
+            <button class="btn btn-primary" onclick="changePwd()">🔑 Cambia</button>
             <span class="saved-msg" id="pwd-saved">✓ Aggiornata!</span>
           </div>
           <div style="color:var(--red);font-size:.78rem;margin-top:.5rem;display:none" id="pwd-error"></div>
         </div>
         <div class="card">
           <div class="card-title">⚠️ Reset configurazione</div>
-          <p style="color:var(--muted);font-size:.83rem;margin-bottom:1rem">Elimina tutte le fonti, regole e impostazioni. Irreversibile.</p>
+          <p style="color:var(--muted);font-size:.83rem;margin-bottom:1rem">Elimina tutte le fonti, regole e impostazioni.</p>
           <button class="btn btn-danger" onclick="resetAll()">🗑 Reset completo</button>
         </div>
       </div>
 
     </div>
   </div>
+
+  <!-- BOTTOM NAV MOBILE -->
+  <div class="bottom-nav">
+    <button class="bnav-item active" onclick="showPage('dashboard',this)"><span class="bnav-icon">📊</span>Home</button>
+    <button class="bnav-item" onclick="showPage('settings',this)"><span class="bnav-icon">⚙️</span>Bot</button>
+    <button class="bnav-item" onclick="showPage('sources',this)"><span class="bnav-icon">📂</span>Fonti</button>
+    <button class="bnav-item" onclick="showPage('rules',this)"><span class="bnav-icon">📋</span>Regole</button>
+    <button class="bnav-item" onclick="showPage('fallback',this)"><span class="bnav-icon">📧</span>Email</button>
+    <button class="bnav-item" onclick="showPage('security',this)"><span class="bnav-icon">🔐</span>Pwd</button>
+  </div>
 </div>
 
 <script>
-// ── SUPABASE CONFIG ──
 const SUPABASE_URL = 'https://dmafhgewcnmteylbiyqo.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_6oQJn6zDZg4Fea_sRenQNQ_PlveL9tS';
 const SB_HEADERS = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
 
 let config = {};
 
-// ── SUPABASE API ──
 async function sbGet() {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/chatbot_config?id=eq.default&select=*`, { headers: SB_HEADERS });
   const rows = await res.json();
@@ -312,8 +361,7 @@ async function sbGet() {
 async function sbUpdate(data) {
   setSyncing(true);
   const res = await fetch(`${SUPABASE_URL}/rest/v1/chatbot_config?id=eq.default`, {
-    method: 'PATCH',
-    headers: SB_HEADERS,
+    method: 'PATCH', headers: SB_HEADERS,
     body: JSON.stringify({ ...data, updated_at: new Date().toISOString() })
   });
   setSyncing(false);
@@ -322,15 +370,13 @@ async function sbUpdate(data) {
 
 function setSyncing(active) {
   document.getElementById('sync-dot').className = 'sync-dot' + (active ? ' syncing' : '');
-  document.getElementById('sync-label').textContent = active ? 'Salvataggio…' : 'Sincronizzato';
 }
 
-// ── LOGIN ──
+// LOGIN
 async function doLogin() {
   const pwd = document.getElementById('pwd-input').value;
   document.getElementById('login-error').style.display = 'none';
   document.getElementById('login-loading').style.display = 'block';
-
   try {
     const row = await sbGet();
     if (!row) throw new Error('Config non trovata');
@@ -346,7 +392,7 @@ async function doLogin() {
     }
   } catch(e) {
     document.getElementById('login-loading').style.display = 'none';
-    document.getElementById('login-error').textContent = 'Errore connessione Supabase. Riprova.';
+    document.getElementById('login-error').textContent = 'Errore connessione. Riprova.';
     document.getElementById('login-error').style.display = 'block';
   }
 }
@@ -361,52 +407,46 @@ function doLogout() {
 
 document.getElementById('pwd-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 
-// ── NAVIGATION ──
+// NAVIGATION
 function showPage(id, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.nav-item,.bnav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
   if (btn) btn.classList.add('active');
+  // sync desktop nav
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")) n.classList.add('active');
+  });
+  window.scrollTo(0,0);
 }
 
-// ── POPULATE ──
 function populateAll() {
-  document.getElementById('hdr-botname').textContent = config.bot_name || 'Bot';
-  document.getElementById('dash-botname').textContent = config.bot_name || '—';
+  const name = config.bot_name || 'Bot';
+  document.getElementById('hdr-botname').textContent = name;
+  document.getElementById('dash-botname').textContent = name;
   document.getElementById('bot-name').value = config.bot_name || '';
   document.getElementById('bot-welcome').value = config.bot_welcome || '';
   document.getElementById('bot-persona').value = config.bot_persona || '';
   document.getElementById('fallback-email').value = config.fallback_email || '';
   document.getElementById('fallback-msg').value = config.fallback_msg || '';
-  renderSources();
-  renderRules();
-  updateStats();
+  const chatUrl = window.location.href.replace('admin/index.html','chat/').replace('admin/','chat/');
+  document.getElementById('chat-link').textContent = chatUrl;
+  renderSources(); renderRules(); updateStats();
 }
 
 function updateStats() {
-  const sources = config.sources || [];
-  const rules = config.rules || [];
-  document.getElementById('stat-sources').textContent = sources.filter(s=>s.status==='ready').length;
-  document.getElementById('stat-rules').textContent = rules.length;
+  document.getElementById('stat-sources').textContent = (config.sources||[]).filter(s=>s.status==='ready').length;
+  document.getElementById('stat-rules').textContent = (config.rules||[]).length;
 }
 
-// ── SETTINGS ──
+// SETTINGS
 async function saveSettings() {
-  const data = {
-    bot_name: document.getElementById('bot-name').value.trim() || 'Assistente',
-    bot_welcome: document.getElementById('bot-welcome').value.trim(),
-    bot_persona: document.getElementById('bot-persona').value.trim()
-  };
+  const data = { bot_name: document.getElementById('bot-name').value.trim()||'Assistente', bot_welcome: document.getElementById('bot-welcome').value.trim(), bot_persona: document.getElementById('bot-persona').value.trim() };
   const ok = await sbUpdate(data);
-  if (ok) {
-    Object.assign(config, data);
-    document.getElementById('hdr-botname').textContent = config.bot_name;
-    document.getElementById('dash-botname').textContent = config.bot_name;
-    flashSaved('settings-saved');
-  }
+  if (ok) { Object.assign(config, data); document.getElementById('hdr-botname').textContent = config.bot_name; document.getElementById('dash-botname').textContent = config.bot_name; flashSaved('settings-saved'); }
 }
 
-// ── SOURCES ──
+// SOURCES
 let activeSourceTab = 'url';
 function switchSourceTab(btn) {
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -417,16 +457,12 @@ function switchSourceTab(btn) {
   document.getElementById('file-inp').accept = activeSourceTab==='pdf'?'.pdf':'.txt';
   document.getElementById('file-lbl-txt').textContent = `Scegli file ${activeSourceTab.toUpperCase()}…`;
 }
-
-function fileSelected(input) {
-  const files = Array.from(input.files);
-  document.getElementById('file-lbl-txt').textContent = files.length===1?files[0].name:`${files.length} file selezionati`;
-}
+function fileSelected(input) { const f=Array.from(input.files); document.getElementById('file-lbl-txt').textContent = f.length===1?f[0].name:`${f.length} file`; }
 
 async function addURL() {
   const url = document.getElementById('url-inp').value.trim();
-  if (!url || !url.startsWith('http')) { alert('URL non valido'); return; }
-  const src = { id: Date.now(), type:'url', name:url.replace(/^https?:\/\//,'').slice(0,60), url, content:`[Contenuto da: ${url}]`, status:'ready' };
+  if (!url||!url.startsWith('http')) { alert('URL non valido'); return; }
+  const src = { id: Date.now(), type:'url', name:url.replace(/^https?:\/\//,'').slice(0,60), url, content:'', status:'ready' };
   config.sources = [...(config.sources||[]), src];
   await sbUpdate({ sources: config.sources });
   renderSources(); updateStats();
@@ -445,8 +481,7 @@ async function addFiles() {
   }
   await sbUpdate({ sources: config.sources });
   renderSources(); updateStats();
-  input.value='';
-  document.getElementById('file-lbl-txt').textContent='Scegli file…';
+  input.value=''; document.getElementById('file-lbl-txt').textContent='Scegli file…';
 }
 
 async function removeSource(id) {
@@ -467,17 +502,17 @@ function renderSources() {
         <div class="source-name" title="${s.name}">${s.name}</div>
         <div class="source-meta"><span class="status-dot ${s.status==='ready'?'status-ready':'status-processing'}"></span>${s.status==='ready'?'Pronto':'Elaborazione…'}${s.meta?' · '+s.meta:''}</div>
       </div>
-      <button class="btn btn-danger btn-sm" onclick="removeSource(${s.id})">× Rimuovi</button>
+      <button class="btn btn-danger btn-sm" onclick="removeSource(${s.id})">×</button>
     </div>
   `).join('');
 }
 
-// ── RULES ──
+// RULES
 async function addRule() {
   const trigger = document.getElementById('rule-trigger').value.trim();
   const response = document.getElementById('rule-response').value.trim();
   if (!trigger||!response) { alert('Compila entrambi i campi'); return; }
-  config.rules = [...(config.rules||[]), { id:Date.now(), trigger, response }];
+  config.rules = [...(config.rules||[]), { id: Date.now(), trigger, response }];
   await sbUpdate({ rules: config.rules });
   renderRules(); updateStats();
   document.getElementById('rule-trigger').value='';
@@ -497,22 +532,22 @@ function renderRules() {
   el.innerHTML = rules.map(r=>`
     <div class="rule-card">
       <div class="rule-body">
-        <div class="rule-trigger">🔍 Trigger: "${r.trigger}"</div>
+        <div class="rule-trigger">🔍 "${r.trigger}"</div>
         <div class="rule-response">↩ ${r.response}</div>
       </div>
-      <button class="btn btn-danger btn-sm" onclick="removeRule(${r.id})">× Rimuovi</button>
+      <button class="btn btn-danger btn-sm" onclick="removeRule(${r.id})">×</button>
     </div>
   `).join('');
 }
 
-// ── FALLBACK ──
+// FALLBACK
 async function saveFallback() {
   const data = { fallback_email: document.getElementById('fallback-email').value.trim(), fallback_msg: document.getElementById('fallback-msg').value.trim() };
   const ok = await sbUpdate(data);
   if (ok) { Object.assign(config, data); flashSaved('fallback-saved'); }
 }
 
-// ── SECURITY ──
+// SECURITY
 async function changePwd() {
   const current = document.getElementById('pwd-current').value;
   const newPwd = document.getElementById('pwd-new').value;
@@ -535,10 +570,10 @@ async function resetAll() {
   alert('Reset completato.');
 }
 
-// ── UTILS ──
+// UTILS
 function flashSaved(id) { const el=document.getElementById(id); el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2500); }
-function copyLink() { const link=window.location.href.replace('admin/index.html','chat/index.html'); navigator.clipboard.writeText(link).then(()=>alert('Link copiato!')); }
-function openChat() { window.open('../chat/index.html','_blank'); }
+function copyLink() { navigator.clipboard.writeText(document.getElementById('chat-link').textContent).then(()=>alert('Link copiato!')); }
+function openChat() { window.open(document.getElementById('chat-link').textContent,'_blank'); }
 </script>
 </body>
 </html>
