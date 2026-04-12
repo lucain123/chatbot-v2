@@ -284,7 +284,10 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
             <div class="form-group"><label>Trigger / Parola chiave</label><input type="text" id="rule-trigger" placeholder="es. prezzo, orari…" /></div>
             <div class="form-group"><label>Risposta da dare</label><input type="text" id="rule-response" placeholder="es. Chiama il 02-XXXXXXX" /></div>
           </div>
-          <button class="btn btn-primary btn-sm" onclick="addRule()">+ Aggiungi</button>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem">
+            <button class="btn btn-primary btn-sm" id="rule-add-btn" onclick="addRule()">+ Aggiungi</button>
+            <button class="btn btn-sm" id="rule-cancel-btn" style="display:none;background:var(--surface2);color:var(--muted);border:1px solid var(--border)" onclick="cancelEditRule()">✕ Annulla</button>
+          </div>
         </div>
         <div class="card">
           <div class="card-title">📋 Regole attive</div>
@@ -508,18 +511,55 @@ function renderSources() {
 }
 
 // RULES
+let editingRuleId = null;
+
 async function addRule() {
   const trigger = document.getElementById('rule-trigger').value.trim();
   const response = document.getElementById('rule-response').value.trim();
   if (!trigger||!response) { alert('Compila entrambi i campi'); return; }
-  config.rules = [...(config.rules||[]), { id: Date.now(), trigger, response }];
+
+  if (editingRuleId !== null) {
+    // Modifica regola esistente
+    config.rules = (config.rules||[]).map(r =>
+      r.id === editingRuleId ? { ...r, trigger, response } : r
+    );
+    editingRuleId = null;
+    document.getElementById('rule-add-btn').textContent = '+ Aggiungi';
+    document.getElementById('rule-cancel-btn').style.display = 'none';
+  } else {
+    // Nuova regola
+    config.rules = [...(config.rules||[]), { id: Date.now(), trigger, response }];
+  }
+
   await sbUpdate({ rules: config.rules });
   renderRules(); updateStats();
   document.getElementById('rule-trigger').value='';
   document.getElementById('rule-response').value='';
 }
 
+function editRule(id) {
+  const rule = (config.rules||[]).find(r => r.id === id);
+  if (!rule) return;
+  editingRuleId = id;
+  document.getElementById('rule-trigger').value = rule.trigger;
+  document.getElementById('rule-response').value = rule.response;
+  document.getElementById('rule-add-btn').textContent = '✏️ Salva modifica';
+  document.getElementById('rule-cancel-btn').style.display = 'inline-flex';
+  document.getElementById('rule-trigger').focus();
+  document.getElementById('page-rules').scrollTop = 0;
+  window.scrollTo(0,0);
+}
+
+function cancelEditRule() {
+  editingRuleId = null;
+  document.getElementById('rule-trigger').value='';
+  document.getElementById('rule-response').value='';
+  document.getElementById('rule-add-btn').textContent = '+ Aggiungi';
+  document.getElementById('rule-cancel-btn').style.display = 'none';
+}
+
 async function removeRule(id) {
+  if (!confirm('Rimuovere questa regola?')) return;
   config.rules = (config.rules||[]).filter(r=>r.id!==id);
   await sbUpdate({ rules: config.rules });
   renderRules(); updateStats();
@@ -535,7 +575,10 @@ function renderRules() {
         <div class="rule-trigger">🔍 "${r.trigger}"</div>
         <div class="rule-response">↩ ${r.response}</div>
       </div>
-      <button class="btn btn-danger btn-sm" onclick="removeRule(${r.id})">×</button>
+      <div style="display:flex;gap:.4rem;flex-shrink:0">
+        <button class="btn btn-sm" style="background:var(--accent-dim);color:var(--accent);border:none" onclick="editRule(${r.id})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="removeRule(${r.id})">×</button>
+      </div>
     </div>
   `).join('');
 }
