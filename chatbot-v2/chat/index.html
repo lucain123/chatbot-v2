@@ -106,7 +106,7 @@ let loading = false;
 
 async function loadConfig() {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/chatbot_config?id=eq.default&select=bot_name,bot_welcome,fallback_email,fallback_msg`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/chatbot_config?id=eq.default&select=bot_name,bot_welcome,bot_logo,fallback_email,fallback_msg`, {
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
     });
     const rows = await res.json();
@@ -119,11 +119,21 @@ function initUI() {
   const name = config.bot_name || 'Assistente';
   const initial = name.charAt(0).toUpperCase();
   document.title = name;
-  document.getElementById('hdr-av').textContent = initial;
   document.getElementById('hdr-name').textContent = name;
-  document.getElementById('welcome-av').textContent = initial;
   document.getElementById('welcome-name').textContent = name;
   document.getElementById('welcome-text').textContent = config.bot_welcome || 'Come posso aiutarti?';
+
+  // Logo
+  if (config.bot_logo) {
+    const logoHtml = `<img src="${config.bot_logo}" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`;
+    document.getElementById('hdr-av').innerHTML = logoHtml;
+    document.getElementById('hdr-av').style.background = 'transparent';
+    document.getElementById('welcome-av').innerHTML = `<img src="${config.bot_logo}" style="width:100%;height:100%;object-fit:cover;border-radius:18px">`;
+    document.getElementById('welcome-av').style.background = 'transparent';
+  } else {
+    document.getElementById('hdr-av').textContent = initial;
+    document.getElementById('welcome-av').textContent = initial;
+  }
 }
 
 loadConfig();
