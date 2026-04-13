@@ -237,6 +237,19 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
         <div class="page-sub">Personalizza nome e comportamento</div>
         <div class="card">
           <div class="card-title">🤖 Identità</div>
+          <div class="form-group">
+            <label>Logo / Avatar</label>
+            <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+              <div id="logo-preview" style="width:56px;height:56px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.4rem;overflow:hidden;flex-shrink:0">🤖</div>
+              <div style="flex:1;min-width:180px">
+                <label class="file-lbl" for="logo-inp" style="margin-bottom:.5rem">📎 Carica immagine (PNG, JPG, SVG)</label>
+                <input type="file" id="logo-inp" accept="image/*" onchange="previewLogo(this)" style="display:none">
+                <div style="display:flex;gap:.5rem;margin-top:.5rem">
+                  <input type="text" id="logo-url" placeholder="oppure incolla URL immagine…" style="flex:1;padding:.5rem .75rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.8rem;outline:none" oninput="previewLogoUrl(this.value)">
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="form-group"><label>Nome del Chatbot</label><input type="text" id="bot-name" placeholder="es. Sofia, HelperBot…" /></div>
           <div class="form-group"><label>Messaggio di benvenuto</label><textarea id="bot-welcome" placeholder="es. Ciao! Sono Sofia, come posso aiutarti?"></textarea></div>
           <div class="form-group"><label>Tono e personalità / Istruzioni aggiuntive</label><textarea id="bot-persona" placeholder="es. Rispondi nella lingua dell'utente. Sii breve e professionale."></textarea></div>
@@ -432,6 +445,11 @@ function populateAll() {
   document.getElementById('bot-persona').value = config.bot_persona || '';
   document.getElementById('fallback-email').value = config.fallback_email || '';
   document.getElementById('fallback-msg').value = config.fallback_msg || '';
+  // Logo
+  if (config.bot_logo) {
+    document.getElementById('logo-url').value = config.bot_logo.startsWith('http') ? config.bot_logo : '';
+    updateLogoPreview(config.bot_logo);
+  }
   const chatUrl = window.location.href.replace('admin/index.html','chat/').replace('admin/','chat/');
   document.getElementById('chat-link').textContent = chatUrl;
   renderSources(); renderRules(); updateStats();
@@ -444,9 +462,47 @@ function updateStats() {
 
 // SETTINGS
 async function saveSettings() {
-  const data = { bot_name: document.getElementById('bot-name').value.trim()||'Assistente', bot_welcome: document.getElementById('bot-welcome').value.trim(), bot_persona: document.getElementById('bot-persona').value.trim() };
+  const data = {
+    bot_name: document.getElementById('bot-name').value.trim()||'Assistente',
+    bot_welcome: document.getElementById('bot-welcome').value.trim(),
+    bot_persona: document.getElementById('bot-persona').value.trim(),
+    bot_logo: config.bot_logo || ''
+  };
   const ok = await sbUpdate(data);
-  if (ok) { Object.assign(config, data); document.getElementById('hdr-botname').textContent = config.bot_name; document.getElementById('dash-botname').textContent = config.bot_name; flashSaved('settings-saved'); }
+  if (ok) {
+    Object.assign(config, data);
+    document.getElementById('hdr-botname').textContent = config.bot_name;
+    document.getElementById('dash-botname').textContent = config.bot_name;
+    flashSaved('settings-saved');
+  }
+}
+
+function previewLogo(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const dataUrl = e.target.result;
+    config.bot_logo = dataUrl;
+    updateLogoPreview(dataUrl);
+    await sbUpdate({ bot_logo: dataUrl });
+  };
+  reader.readAsDataURL(file);
+}
+
+function previewLogoUrl(url) {
+  if (!url) return;
+  config.bot_logo = url;
+  updateLogoPreview(url);
+}
+
+function updateLogoPreview(src) {
+  const preview = document.getElementById('logo-preview');
+  if (src && src.startsWith('data:') || src.startsWith('http')) {
+    preview.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`;
+  } else {
+    preview.innerHTML = '🤖';
+  }
 }
 
 // SOURCES
